@@ -10,6 +10,9 @@ pub fn build(b: *std.Build) void {
         .abi = .none,
     }), .optimize = .ReleaseSafe, .strip = false });
 
+    // so the linker doesn't complain about the missing _start
+    exe.entry = .disabled;
+
     exe.setLinkerScript(b.path("src/kernel.ld"));
 
     // This declares intent for the executable to be installed into the
