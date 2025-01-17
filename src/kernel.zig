@@ -34,8 +34,8 @@ fn sbi_call(
     arg3: usize,
     arg4: usize,
     arg5: usize,
-    arg6: usize,
-    arg7: usize,
+    extension_id: usize,
+    function_id: usize,
 ) SbiRet {
     var err: usize = undefined;
     var value: usize = undefined;
@@ -48,8 +48,8 @@ fn sbi_call(
           [arg3] "{a3}" (arg3),
           [arg4] "{a4}" (arg4),
           [arg5] "{a5}" (arg5),
-          [arg6] "{a6}" (arg6),
-          [arg7] "{a7}" (arg7),
+          [eid] "{a6}" (extension_id),
+          [fid] "{a7}" (function_id),
         : "memory"
     );
 
