@@ -21,11 +21,21 @@ C-a C-a  sends C-a
 
 ### 2025-01-17
 
-launched the empty kernel, PC register was 80200076
-checking the in the objdump
+launched the empty kernel and checked the program counter
+```
+(qemu) info registers
+
+CPU#0
+ V      =   0
+ pc       80200034
+...
+```
+checking that address in the kernel elf dump:
 
 ```objdump
-80200076 : a001         	j	0x80200076 <kernel_main+0x66>
+...
+80200034: a001          j       0x80200034 <kernel_main+0x24>
+...
 ```
 
 yay :)
