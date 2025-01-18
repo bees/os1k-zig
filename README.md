@@ -19,6 +19,10 @@ C-a C-a  sends C-a
 
 ## progression log (newest first)
 
+### 2025-01-18
+
+Implemented the worlds worst memory allocator. May take a detour and implement buddy memory allocation.
+
 ### 2025-01-17
 
 launched the empty kernel and checked the program counter

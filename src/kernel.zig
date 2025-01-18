@@ -4,12 +4,16 @@ const bss = @extern([*]u8, .{ .name = "__bss" });
 const bss_end = @extern([*]u8, .{ .name = "__bss_end" });
 const stack_top = @extern([*]u8, .{ .name = "__stack_top" });
 
+const console = common.console;
+
 export fn kernel_main() noreturn {
     const bss_len = bss_end - bss;
     @memset(bss[0..bss_len], 0);
 
+    console.print("free ram start {x}\n", .{@intFromPtr(free_ram_start)}) catch {};
+    console.print("free ram end {x}\n", .{@intFromPtr(free_ram_end)}) catch {};
     write_csr("stvec", @intFromPtr(&kernel_entry));
-    asm volatile ("unimp");
+
     while (true) asm volatile ("wfi");
 }
 
@@ -26,7 +30,7 @@ pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace, retu
     _ = error_return_trace;
     _ = return_address;
 
-    common.console.print("PANIC: {s}\n", .{msg}) catch {};
+    console.print("PANIC: {s}\n", .{msg}) catch {};
 
     while (true) asm volatile ("");
 }
@@ -158,4 +162,24 @@ fn write_csr(comptime register: []const u8, value: usize) void {
         :
         : [value] "r" (value),
     );
+}
+
+const free_ram_start = @extern([*]u8, .{ .name = "__free_ram" });
+const free_ram_end = @extern([*]u8, .{ .name = "__free_ram_end" });
+const PAGE_SIZE = 4096;
+
+// todo: return an error if n is too large (ie overflows the next_paddr calc)
+fn alloc_pages(n: usize) [*]u8 {
+    const pages = struct {
+        var next_paddr = free_ram_start;
+    };
+    const paddr = pages.next_paddr;
+    pages.next_paddr += n * PAGE_SIZE;
+
+    if (@intFromPtr(pages.next_paddr) > @intFromPtr(free_ram_end)) {
+        panic("out of memory", undefined, undefined);
+    }
+
+    @memset(paddr[0..(n * PAGE_SIZE)], 0);
+    return paddr;
 }
